@@ -39,7 +39,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: deb0pratim/GitHub-Action-Demo:latest
+          tags: deb0pratim/github-action-demo:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
