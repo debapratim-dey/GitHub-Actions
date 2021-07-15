@@ -43,5 +43,7 @@ jobs:
         with:
           namespace: 'github-actions'
           images: 'docker.io/deb0pratim/github-action:${{ github.sha }}'
-          manifests: './k8s_manifests/deployment.yaml'
+          manifests: |
+            ./k8s_manifests/deployment.yaml
+            ./k8s_manifests/loadbalancer.yaml
 
