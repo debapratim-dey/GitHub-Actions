@@ -22,7 +22,7 @@ jobs:
         with:
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/github-action:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/github-action:${{ github.run_id }}
 
 
   deployment:
@@ -42,6 +42,6 @@ jobs:
         uses: Azure/k8s-deploy@v1
         with:
           namespace: 'github-actions'
-          images: '${{ secrets.DOCKER_HUB_USERNAME }}/github-action:${{ github.sha }}'
+          images: '${{ secrets.DOCKER_HUB_USERNAME }}/github-action:${{ github.run_id }}'
           manifests: './k8s_manifests/deployment.yaml'
 
