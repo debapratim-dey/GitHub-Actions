@@ -21,7 +21,7 @@ spec:
       terminationGracePeriodSeconds: 1
       containers:
         - name: github-actions
-          image: dummy_placeholder
+          image: docker.io/deb0pratim/github-action
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
