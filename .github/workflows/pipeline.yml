@@ -4,8 +4,8 @@ on:
     branches:
       - master
 jobs:
-  build:
-    name: Build custom container image
+  test:
+    name: Running testcases for NodeJs
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
@@ -20,11 +20,11 @@ jobs:
       - run: npm test
 
 
-#  deployment:
-#    needs: [build]
-#    name: Deploy helm-charts to K8s
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Clone repository
-#        uses: actions/checkout@v2
+  build:
+    needs: [test]
+    name: Build and Push container image to DockerHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v2
 
