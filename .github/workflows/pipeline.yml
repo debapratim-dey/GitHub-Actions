@@ -24,6 +24,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/github-action:${{ github.sha }}
 
+
   deployment:
     needs: [ build ]
     name: Deploy into Kubernetes cluster
