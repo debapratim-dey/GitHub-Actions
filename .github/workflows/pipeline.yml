@@ -47,6 +47,15 @@ jobs:
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
 
+      - name: Kubernetes deployment
+        uses: Azure/k8s-deploy@v1
+        with:
+          namespace: github-actions
+          images: 'docker.io/deb0pratim/github-action:${{ github.sha }}'
+          manifests: |
+            ./k8s_manifests/deployment.yaml
+            ./k8s_manifests/loadbalancer.yaml
+
       - name: Download image digest
         uses: actions/download-artifact@v1
         with:
@@ -59,14 +68,3 @@ jobs:
 
       - name: Display image digest
         run: echo "The image digest is- ${{ env.DOCKER_DIGEST }}"
-
-      - name: Kubernetes deployment
-        uses: Azure/k8s-deploy@v1
-        with:
-          namespace: github-actions
-          images: 'docker.io/deb0pratim/github-action@${{ env.DOCKER_DIGEST }}'
-          manifests: |
-            ./k8s_manifests/deployment.yaml
-            ./k8s_manifests/loadbalancer.yaml
-
-
