@@ -34,6 +34,8 @@ jobs:
           name: docker-digest
           path: digest.txt
 
+      - run: echo ${{ steps.docker_build.outputs.digest }}
+
   deployment:
     needs: [ build ]
     name: Deploy into Kubernetes cluster
