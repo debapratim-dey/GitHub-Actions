@@ -59,7 +59,7 @@ jobs:
         uses: Azure/k8s-deploy@v1
         with:
           namespace: github-actions
-          images: docker.io/deb0pratim/github-action@${{ docker_digest }}
+          images: docker.io/deb0pratim/github-action@$docker_digest
           manifests: |
             ./k8s_manifests/deployment.yaml
             ./k8s_manifests/loadbalancer.yaml
