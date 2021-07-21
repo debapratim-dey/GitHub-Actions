@@ -56,6 +56,8 @@ jobs:
         run: |
           docker_digest=`cat docker-digest/digest.txt`
           echo "DOCKER_DIGEST=$docker_digest" >> $GITHUB_ENV
+          IMAGE=docker.io/deb0pratim/github-action@$docker_digest
+          echo $IMAGE
 
       - name: HelmChart deployment
         uses: Azure/k8s-deploy@v1
