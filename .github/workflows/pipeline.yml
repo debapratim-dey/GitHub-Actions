@@ -17,22 +17,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set docker-image tag
+        run: |
+          IMAGE=deb0pratim/github-action:${{ github.sha }}
+          echo "DOCKER_IMAGE=$IMAGE" >> $GITHUB_ENV
+          echo $IMAGE >> image.txt
+
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           file: ./Dockerfile
           push: true
-          tags: deb0pratim/github-action:${{ github.sha }}
+          tags: ${{ env.DOCKER_IMAGE }}
 
       - name: Export digest to file
-        run: echo ${{ steps.docker_build.outputs.digest }} > digest.txt
+        run: echo ${{ steps.docker_build.outputs.digest }}
 
-      - name: Upload digest.txt
+      - name: Upload image.txt
         uses: actions/upload-artifact@v1
         with:
-          name: docker-digest
-          path: digest.txt
+          name: image-tag
+          path: image.txt
 
   deployment:
     needs: [ build ]
@@ -42,22 +48,20 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Download math result for job 1
+      - name: Download image.txt
         uses: actions/download-artifact@v1
         with:
-          name: docker-digest
+          name: image-tag
+
+      - name: Copy image to env-variable
+        run: |
+          IMAGE=`cat image-tag/image.txt`
+          echo "DOCKER_IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Import kube-config into pipeline
         uses: Azure/k8s-set-context@v1
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
-
-      - name: Copy digest to env-variable
-        run: |
-          docker_digest=`cat docker-digest/digest.txt`
-          echo "DOCKER_DIGEST=$docker_digest" >> $GITHUB_ENV
-          IMAGE=docker.io/deb0pratim/github-action@$docker_digest
-          echo "DOCKER_IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: HelmChart deployment
         uses: Azure/k8s-deploy@v1
