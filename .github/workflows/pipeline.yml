@@ -54,14 +54,14 @@ jobs:
 
       - name: Copy digest to env-variable
         run: |
-          export docker_digest=`cat docker-digest/digest.txt`
-          echo "::set-env name=docker_digest::$docker_digest"
+          docker_digest=`cat docker-digest/digest.txt`
+          echo "DOCKER_DIGEST=$docker_digest" >> $GITHUB_ENV
 
       - name: HelmChart deployment
         uses: Azure/k8s-deploy@v1
         with:
           namespace: github-actions
-          images: docker.io/deb0pratim/github-action@$docker_digest
+          images: docker.io/deb0pratim/github-action@${{ env.DOCKER_DIGEST }}
           manifests: |
             ./k8s_manifests/deployment.yaml
             ./k8s_manifests/loadbalancer.yaml
