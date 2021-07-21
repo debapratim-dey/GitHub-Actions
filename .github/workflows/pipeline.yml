@@ -17,28 +17,22 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set docker-image tag
-        run: |
-          IMAGE=deb0pratim/github-action:${{ github.sha }}
-          echo "DOCKER_IMAGE=$IMAGE" >> $GITHUB_ENV
-          echo $IMAGE >> image.txt
-
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           file: ./Dockerfile
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}
+          tags: deb0pratim/github-action:${{ github.sha }}
 
       - name: Export digest to file
-        run: echo ${{ steps.docker_build.outputs.digest }}
+        run: echo ${{ steps.docker_build.outputs.digest }} > digest.txt
 
-      - name: Upload image.txt
+      - name: Upload digest.txt
         uses: actions/upload-artifact@v1
         with:
-          name: image-tag
-          path: image.txt
+          name: docker-digest
+          path: digest.txt
 
   deployment:
     needs: [ build ]
@@ -47,16 +41,6 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
-
-      - name: Download image.txt
-        uses: actions/download-artifact@v1
-        with:
-          name: image-tag
-
-      - name: Copy image to env-variable
-        run: |
-          IMAGE=`cat image-tag/image.txt`
-          echo "DOCKER_IMAGE=$IMAGE" >> $GITHUB_ENV
 
       - name: Import kube-config into pipeline
         uses: Azure/k8s-set-context@v1
@@ -67,8 +51,20 @@ jobs:
         uses: Azure/k8s-deploy@v1
         with:
           namespace: github-actions
-          images: ${{ env.DOCKER_IMAGE }}
+          images: deb0pratim/github-action:${{ github.sha }}
           manifests: |
             ./k8s_manifests/deployment.yaml
             ./k8s_manifests/loadbalancer.yaml
 
+      - name: Download image digest
+        uses: actions/download-artifact@v1
+        with:
+          name: docker-digest
+
+      - name: Copy digest to env-variable
+        run: |
+          docker_digest=`cat docker-digest/digest.txt`
+          echo "DOCKER_DIGEST=$docker_digest" >> $GITHUB_ENV
+
+      - name: Display image digest
+        run: echo "The image digest is- ${{ env.DOCKER_DIGEST }}"
